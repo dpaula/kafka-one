@@ -16,7 +16,7 @@ public class NewOrderMain {
         //para produzir uma mensagem, com tipo da chave e tipo da mensagem
         var producer = new KafkaProducer<String, String>(properties());
 
-        var value = "1313413,671343,89348934";
+        var value = "1313444,67144,8934844";
 
         //mensagem que tera a mesma informação, tanto pra chave quanto o valor
         var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", value, value);
