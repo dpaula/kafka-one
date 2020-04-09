@@ -1,5 +1,6 @@
 package com.dpaula.ecommerce;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -21,8 +22,20 @@ public class NewOrderMain {
         //mensagem que tera a mesma informação, tanto pra chave quanto o valor
         var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", value, value);
 
+        // enviando uma mensagem
         // com o .get ele fica sincrono
-        producer.send(record, (dadosSucesso, excpFalha) -> {
+        producer.send(record, getCallback()).get();
+
+        var email = "Obrigado pelo pedido! Estamos processando seu pedido!";
+        var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", email, email);
+
+        producer.send(emailRecord, getCallback()).get();
+
+
+    }
+
+    private static Callback getCallback() {
+        return (dadosSucesso, excpFalha) -> {
             //callback para tratar o retonro sincrono
 
             if(excpFalha != null){
@@ -30,7 +43,7 @@ public class NewOrderMain {
                 return;
             }
             System.out.println("Sucesso enviando : "+dadosSucesso.topic()+":::partition "+dadosSucesso.partition()+"/ offset "+dadosSucesso.offset()+"/ timestamp "+dadosSucesso.timestamp());
-        }).get();
+        };
     }
 
     // criando as propriedades na mão, mas deve ser pelo arquivo de properties
