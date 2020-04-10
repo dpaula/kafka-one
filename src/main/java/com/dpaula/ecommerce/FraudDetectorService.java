@@ -65,6 +65,8 @@ public class FraudDetectorService {
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, FraudDetectorService.class.getSimpleName());
         // definindo um id para o consumidor
         properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, FraudDetectorService.class.getSimpleName()+ "-"+ UUID.randomUUID().toString());
+        // definindo que será feito o commit das mensagens processadas, uma em uma
+        properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1");
         return properties;
     }
 }
