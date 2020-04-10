@@ -6,13 +6,15 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 /**
  * @author Fernando de Lima
  */
-class KafkaDispatcher {
+class KafkaDispatcher implements Closeable {
 
     private final KafkaProducer<String, String> producer;
 
@@ -56,5 +58,10 @@ class KafkaDispatcher {
         // enviando uma mensagem
         // com o .get ele fica sincrono
         producer.send(record, getCallback()).get();
+    }
+
+    @Override
+    public void close() {
+        this.producer.close();
     }
 }

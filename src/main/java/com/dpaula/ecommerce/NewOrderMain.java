@@ -18,16 +18,17 @@ public class NewOrderMain {
         var dispatcher = new KafkaDispatcher();
 
         //para produzir uma mensagem, com tipo da chave e tipo da mensagem
-        var producer = new KafkaProducer<String, String>(properties());
+        try(var producer = new KafkaProducer<String, String>(properties());) {
 
-        for(var i = 0; i<10; i++) {
-            var key = UUID.randomUUID().toString();
+            for (var i = 0; i < 10; i++) {
+                var key = UUID.randomUUID().toString();
 
-            var value = key + ",67144,8934844";
-            dispatcher.send("ECOMMERCE_NEW_ORDER", key, value);
+                var value = key + ",67144,8934844";
+                dispatcher.send("ECOMMERCE_NEW_ORDER", key, value);
 
-            var email = "Obrigado pelo pedido! Estamos processando seu pedido!";
-            dispatcher.send("ECOMMERCE_SEND_EMAIL", key, email);
+                var email = "Obrigado pelo pedido! Estamos processando seu pedido!";
+                dispatcher.send("ECOMMERCE_SEND_EMAIL", key, email);
+            }
         }
     }
 
