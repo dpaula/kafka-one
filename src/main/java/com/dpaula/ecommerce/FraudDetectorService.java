@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 public class FraudDetectorService {
 
@@ -62,7 +63,8 @@ public class FraudDetectorService {
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         // definindo o id do grupo consumidor
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, FraudDetectorService.class.getSimpleName());
-
+        // definindo um id para o consumidor
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, FraudDetectorService.class.getSimpleName()+ "-"+ UUID.randomUUID().toString());
         return properties;
     }
 }

@@ -8,6 +8,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class NewOrderMain {
@@ -17,21 +18,23 @@ public class NewOrderMain {
         //para produzir uma mensagem, com tipo da chave e tipo da mensagem
         var producer = new KafkaProducer<String, String>(properties());
 
-        var value = "1313444,67144,8934844";
+        for(var i = 0; i<100; i++) {
+            var key = UUID.randomUUID().toString();
 
-        //mensagem que tera a mesma informação, tanto pra chave quanto o valor
-        var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", value, value);
+            var value = key + ",67144,8934844";
 
-        // enviando uma mensagem
-        // com o .get ele fica sincrono
-        producer.send(record, getCallback()).get();
+            //mensagem que tera a mesma informação, tanto pra chave quanto o valor
+            var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", key, value);
 
-        var email = "Obrigado pelo pedido! Estamos processando seu pedido!";
-        var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", email, email);
+            // enviando uma mensagem
+            // com o .get ele fica sincrono
+            producer.send(record, getCallback()).get();
 
-        producer.send(emailRecord, getCallback()).get();
+            var email = "Obrigado pelo pedido! Estamos processando seu pedido!";
+            var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", key, email);
 
-
+            producer.send(emailRecord, getCallback()).get();
+        }
     }
 
     private static Callback getCallback() {
