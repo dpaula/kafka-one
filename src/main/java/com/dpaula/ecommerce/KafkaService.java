@@ -8,15 +8,18 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 /**
  * @author Fernando de Lima
  */
 class KafkaService {
+    private String grupoId;
     private final ConsumerFunction parse;
     private final KafkaConsumer<String, String> consumer;
 
-    KafkaService(String topico, ConsumerFunction parse) {
+    KafkaService(String grupoId, String topico, ConsumerFunction parse) {
+        this.grupoId = grupoId;
         this.parse = parse;
         //configurando consumidor de mensagens, cuja chave e valor sejam String, com as propriedades de configuração
         this.consumer = new KafkaConsumer<>(properties());
@@ -28,7 +31,7 @@ class KafkaService {
 
     }
 
-    private static Properties properties() {
+    private Properties properties() {
 
         var properties = new Properties();
 
@@ -39,7 +42,9 @@ class KafkaService {
         //Informando qual classe de DEserialização será usada para o valor, neste caso sera string
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         // definindo o id do grupo consumidor
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, EmailService.class.getSimpleName());
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, grupoId);
+        // definindo um id para o consumidor
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, grupoId+ "-"+ UUID.randomUUID().toString());
 
         return properties;
     }

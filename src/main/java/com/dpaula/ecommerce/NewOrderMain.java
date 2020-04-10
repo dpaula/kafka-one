@@ -18,7 +18,7 @@ public class NewOrderMain {
         //para produzir uma mensagem, com tipo da chave e tipo da mensagem
         var producer = new KafkaProducer<String, String>(properties());
 
-        for(var i = 0; i<100; i++) {
+        for(var i = 0; i<10; i++) {
             var key = UUID.randomUUID().toString();
 
             var value = key + ",67144,8934844";
