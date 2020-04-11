@@ -14,9 +14,9 @@ import java.util.concurrent.ExecutionException;
 /**
  * @author Fernando de Lima
  */
-class KafkaDispatcher implements Closeable {
+class KafkaDispatcher<T> implements Closeable {
 
-    private final KafkaProducer<String, String> producer;
+    private final KafkaProducer<String, T> producer;
 
     KafkaDispatcher() {
 
@@ -44,13 +44,13 @@ class KafkaDispatcher implements Closeable {
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
         //Informando qual classe de serialização será usada para chave, neste caso sera string
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        //Informando qual classe de serialização será usada para o valor, neste caso sera string
-        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        //Informando qual classe de serialização será usada para o valor, neste caso usando uma customizada
+        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MeuGsonSerializer.class.getName());
 
         return properties;
     }
 
-    public void send(String topico, String key, String value) throws ExecutionException, InterruptedException {
+    public void send(String topico, String key, T value) throws ExecutionException, InterruptedException {
 
         //mensagem que tera a mesma informação, tanto pra chave quanto o valor
         var record = new ProducerRecord<>(topico, key, value);

@@ -1,12 +1,10 @@
 package com.dpaula.ecommerce;
 
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.util.Map;
+import java.math.BigDecimal;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -15,35 +13,23 @@ public class NewOrderMain {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-        var dispatcher = new KafkaDispatcher();
+        try (var orderDispatcher = new KafkaDispatcher<Order>()) {
+            try (var emailDispatcher = new KafkaDispatcher<String>()) {
 
-        //para produzir uma mensagem, com tipo da chave e tipo da mensagem
-        try(var producer = new KafkaProducer<String, String>(properties());) {
+                for (var i = 0; i < 10; i++) {
 
-            for (var i = 0; i < 10; i++) {
-                var key = UUID.randomUUID().toString();
+                    var userId = UUID.randomUUID().toString();
+                    var orderId = UUID.randomUUID().toString();
+                    // numero decimal entre 1 e 5000
+                    var amount = new BigDecimal(Math.random() * 5000 + 1);
+                    var order = new Order(userId, orderId, amount);
 
-                var value = key + ",67144,8934844";
-                dispatcher.send("ECOMMERCE_NEW_ORDER", key, value);
+                    orderDispatcher.send("ECOMMERCE_NEW_ORDER", userId, order);
 
-                var email = "Obrigado pelo pedido! Estamos processando seu pedido!";
-                dispatcher.send("ECOMMERCE_SEND_EMAIL", key, email);
+                    var email = "Obrigado pelo pedido! Estamos processando seu pedido!";
+                    emailDispatcher.send("ECOMMERCE_SEND_EMAIL", userId, email);
+                }
             }
         }
-    }
-
-    // criando as propriedades na mão, mas deve ser pelo arquivo de properties
-    private static Properties properties() {
-
-        var properties = new Properties();
-
-        //setando o endereço do kafka
-        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-        //Informando qual classe de serialização será usada para chave, neste caso sera string
-        properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        //Informando qual classe de serialização será usada para o valor, neste caso sera string
-        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-        return properties;
     }
 }
