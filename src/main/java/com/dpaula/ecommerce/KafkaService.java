@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * @author Fernando de Lima
@@ -30,6 +31,17 @@ class KafkaService implements Closeable {
 
         // definindo qual será o tópico que o consumidor ficara escutando
         consumer.subscribe(topicos);
+
+    }
+
+    KafkaService(String grupoId, Pattern topico, ConsumerFunction parse) {
+        this.grupoId = grupoId;
+        this.parse = parse;
+        //configurando consumidor de mensagens, cuja chave e valor sejam String, com as propriedades de configuração
+        this.consumer = new KafkaConsumer<>(properties());
+
+        // definindo qual será o tópico que o consumidor ficara escutando
+        consumer.subscribe(topico);
 
     }
 
