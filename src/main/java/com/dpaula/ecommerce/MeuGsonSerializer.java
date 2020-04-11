@@ -14,13 +14,12 @@ public class MeuGsonSerializer<T> implements Serializer<T> {
     private final Gson gson = new GsonBuilder().create();
 
     /**
+     *
      * O serialize do kafka define que dever ser convertido o meu objeto <T>
      * para um array de bytes,
      * <p>
      * E neste caso vamos usar um conversor JSON
      *
-     * @param s
-     * @param t
      * @return array de bytes
      */
     @Override
