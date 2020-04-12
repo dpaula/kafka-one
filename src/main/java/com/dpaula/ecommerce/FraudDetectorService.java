@@ -8,9 +8,10 @@ public class FraudDetectorService {
 
         var fraudService = new FraudDetectorService();
 
-        try (var service = new KafkaService(FraudDetectorService.class.getSimpleName(),
+        try (var service = new KafkaService<>(FraudDetectorService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
-                fraudService::parse)) {
+                fraudService::parse,
+                Order.class)) {
 
             service.run();
         }
@@ -21,7 +22,7 @@ public class FraudDetectorService {
      *
      * @param record
      */
-    private void parse(ConsumerRecord<String, String> record) {
+    private void parse(ConsumerRecord<String, Order> record) {
         System.out.println("--------------------------------------------------");
         System.out.println("Processando novo pedido, verificando por fraude");
         System.out.println("Chave " + record.key());

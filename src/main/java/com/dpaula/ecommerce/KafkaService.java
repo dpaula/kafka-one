@@ -5,7 +5,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -16,14 +15,16 @@ import java.util.regex.Pattern;
 /**
  * @author Fernando de Lima
  */
-class KafkaService implements Closeable {
-    private String grupoId;
+class KafkaService<T> implements Closeable {
     private final ConsumerFunction parse;
-    private final KafkaConsumer<String, String> consumer;
+    private Class<T> type;
+    private final KafkaConsumer<String, T> consumer;
+    private String grupoId;
 
-    KafkaService(String grupoId, String topico, ConsumerFunction parse) {
+    KafkaService(String grupoId, String topico, ConsumerFunction parse, Class<T> type) {
         this.grupoId = grupoId;
         this.parse = parse;
+        this.type = type;
         //configurando consumidor de mensagens, cuja chave e valor sejam String, com as propriedades de configuração
         this.consumer = new KafkaConsumer<>(properties());
 
@@ -34,9 +35,10 @@ class KafkaService implements Closeable {
 
     }
 
-    KafkaService(String grupoId, Pattern topico, ConsumerFunction parse) {
+    KafkaService(String grupoId, Pattern topico, ConsumerFunction parse, Class<T> type) {
         this.grupoId = grupoId;
         this.parse = parse;
+        this.type = type;
         //configurando consumidor de mensagens, cuja chave e valor sejam String, com as propriedades de configuração
         this.consumer = new KafkaConsumer<>(properties());
 
@@ -54,11 +56,14 @@ class KafkaService implements Closeable {
         //Informando qual classe de DEserialização será usada para chave, neste caso sera string
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         //Informando qual classe de DEserialização será usada para o valor, neste caso sera string
-        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, MeuGsonDeserializer.class.getName());
         // definindo o id do grupo consumidor
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, grupoId);
         // definindo um id para o consumidor
-        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, grupoId+ "-"+ UUID.randomUUID().toString());
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, grupoId + "-" + UUID.randomUUID().toString());
+
+        // definindo a nossa propriedade para definir o tipo que sera deserealizado
+        properties.setProperty(MeuGsonDeserializer.TYPE_CONFIG, type.getName());
 
         return properties;
     }
