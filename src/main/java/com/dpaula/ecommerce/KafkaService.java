@@ -6,10 +6,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.io.Closeable;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -17,14 +14,16 @@ import java.util.regex.Pattern;
  */
 class KafkaService<T> implements Closeable {
     private final ConsumerFunction parse;
-    private Class<T> type;
+    private final Class<T> type;
+    private final Map<String, String> overrideProperties;
     private final KafkaConsumer<String, T> consumer;
     private String grupoId;
 
-    KafkaService(String grupoId, String topico, ConsumerFunction parse, Class<T> type) {
+    KafkaService(String grupoId, String topico, ConsumerFunction parse, Class<T> type, Map<String, String> propriedadesEstras) {
         this.grupoId = grupoId;
         this.parse = parse;
         this.type = type;
+        this.overrideProperties = propriedadesEstras;
         //configurando consumidor de mensagens, cuja chave e valor sejam String, com as propriedades de configuração
         this.consumer = new KafkaConsumer<>(properties());
 
@@ -35,10 +34,11 @@ class KafkaService<T> implements Closeable {
 
     }
 
-    KafkaService(String grupoId, Pattern topico, ConsumerFunction parse, Class<T> type) {
+    KafkaService(String grupoId, Pattern topico, ConsumerFunction parse, Class<T> type, Map<String, String> propriedadesEstras) {
         this.grupoId = grupoId;
         this.parse = parse;
         this.type = type;
+        this.overrideProperties = propriedadesEstras;
         //configurando consumidor de mensagens, cuja chave e valor sejam String, com as propriedades de configuração
         this.consumer = new KafkaConsumer<>(properties());
 
@@ -64,6 +64,9 @@ class KafkaService<T> implements Closeable {
 
         // definindo a nossa propriedade para definir o tipo que sera deserealizado
         properties.setProperty(MeuGsonDeserializer.TYPE_CONFIG, type.getName());
+
+        // definindo as propriedades que deseja sobreescrever
+        properties.putAll(overrideProperties);
 
         return properties;
     }

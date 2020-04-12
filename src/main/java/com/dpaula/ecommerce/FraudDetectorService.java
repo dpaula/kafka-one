@@ -2,16 +2,19 @@ package com.dpaula.ecommerce;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.util.Map;
+
 public class FraudDetectorService {
 
     public static void main(String[] args) {
 
         var fraudService = new FraudDetectorService();
 
-        try (var service = new KafkaService<>(FraudDetectorService.class.getSimpleName(),
+        try (KafkaService<Order> service = new KafkaService<>(FraudDetectorService.class.getSimpleName(),
                 "ECOMMERCE_NEW_ORDER",
                 fraudService::parse,
-                Order.class)) {
+                Order.class,
+                Map.of())) {
 
             service.run();
         }
@@ -20,7 +23,6 @@ public class FraudDetectorService {
     /**
      * Corpo da execução da mensagem
      *
-     * @param record
      */
     private void parse(ConsumerRecord<String, Order> record) {
         System.out.println("--------------------------------------------------");
