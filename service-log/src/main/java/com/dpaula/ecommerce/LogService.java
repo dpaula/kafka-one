@@ -12,7 +12,7 @@ public class LogService {
     public static void main(String[] args) {
 
         final var logService = new LogService();
-        try (var service = new KafkaService(LogService.class.getSimpleName(),
+        try (KafkaService<String> service = new KafkaService<>(LogService.class.getSimpleName(),
                 Pattern.compile("ECOMMERCE.*"),
                 logService::parse,
                 String.class,
